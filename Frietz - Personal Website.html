@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frietz</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        bw: {
+                            bg: 'var(--bg-color)',
+                            card: 'var(--card-bg)',
+                            text: 'var(--text-main)',
+                            muted: 'var(--text-muted)',
+                            border: 'var(--border-color)',
+                            shadow: 'var(--shadow-color)',
+                            accent: 'var(--accent-bg)',
+                            accentText: 'var(--accent-text)'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #0f172a;
+            --shadow-color: #0f172a;
+            --accent-bg: #0f172a;
+            --accent-text: #ffffff;
+            --hover-bg: #f1f5f9;
+        }
+
+        html.dark {
+            --bg-color: #090d16;
+            --card-bg: #111827;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #f8fafc;
+            --shadow-color: #f8fafc;
+            --accent-bg: #f8fafc;
+            --accent-text: #0f172a;
+            --hover-bg: #1f2937;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        /* Modern Outline Styling */
+        .outline-card {
+            background-color: var(--card-bg);
+            border: 2.5px solid var(--border-color);
+            box-shadow: 4px 4px 0px var(--shadow-color);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .outline-card:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px var(--shadow-color);
+        }
+
+        .outline-btn {
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            border: 2px solid var(--border-color);
+            box-shadow: 3px 3px 0px var(--shadow-color);
+            transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+            user-select: none;
+        }
+
+        .outline-btn:hover {
+            transform: translate(-1.5px, -1.5px);
+            box-shadow: 4.5px 4.5px 0px var(--shadow-color);
+            background-color: var(--hover-bg);
+        }
+
+        .outline-btn:active {
+            transform: translate(1.5px, 1.5px);
+            box-shadow: 1px 1px 0px var(--shadow-color);
+        }
+
+        .outline-btn-primary {
+            background-color: var(--accent-bg);
+            color: var(--accent-text);
+            border: 2px solid var(--border-color);
+            box-shadow: 3px 3px 0px var(--shadow-color);
+            transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .outline-btn-primary:hover {
+            transform: translate(-1.5px, -1.5px);
+            box-shadow: 4.5px 4.5px 0px var(--shadow-color);
+            opacity: 0.95;
+        }
+
+        .outline-btn-primary:active {
+            transform: translate(1.5px, 1.5px);
+            box-shadow: 1px 1px 0px var(--shadow-color);
+        }
+
+        /* Active Navigation Tab */
+        .tab-btn {
+            border: 2px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background-color: var(--accent-bg);
+            color: var(--accent-text);
+            font-weight: 800;
+            box-shadow: 3px 3px 0px var(--shadow-color);
+        }
+
+        /* Dynamic Sliding Tab Panels Animation */
+        .tab-container {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .tab-panel {
+            display: none;
+            width: 100%;
+            transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 0;
+            position: relative;
+        }
+
+        .tab-panel.active {
+            display: block;
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .slide-in-right {
+            animation: slideInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .slide-in-left {
+            animation: slideInLeft 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Equalizer Animation */
+        .eq-bar {
+            width: 4px;
+            background-color: currentColor;
+            border-radius: 2px;
+            animation: bounce 1.2s ease-in-out infinite alternate;
+        }
+
+        .eq-bar:nth-child(1) { height: 60%; animation-delay: 0.1s; }
+        .eq-bar:nth-child(2) { height: 95%; animation-delay: 0.3s; }
+        .eq-bar:nth-child(3) { height: 40%; animation-delay: 0.2s; }
+        .eq-bar:nth-child(4) { height: 80%; animation-delay: 0.4s; }
+
+        .paused .eq-bar {
+            animation-play-state: paused;
+            height: 25% !important;
+        }
+
+        @keyframes bounce {
+            0% { height: 25%; }
+            100% { height: 100%; }
+        }
+
+        /* Lyric Indicator Pulse Animation */
+        .lyric-line {
+            animation: lyricPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes lyricPulse {
+            0%, 100% { opacity: 0.85; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.01); }
+        }
+
+        /* Toast styling */
+        #toast {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            transform: translateY(20px);
+        }
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        input[type=range] {
+            accent-color: var(--text-main);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4 sm:p-6 md:p-10">
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 bg-bw-accent text-bw-accentText font-bold px-5 py-3 rounded-xl border-2 border-bw-border shadow-[4px_4px_0px_var(--shadow-color)] flex items-center space-x-3">
+        <i class="fa-solid fa-sparkles text-amber-400"></i>
+        <span id="toast-msg">Copied!</span>
+    </div>
+
+    <!-- Main Outer Container -->
+    <main class="w-full max-w-4xl flex flex-col space-y-6">
+
+        <!-- Header Profile Card -->
+        <header class="outline-card rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left w-full md:w-auto">
+                <!-- Avatar Upload Section -->
+                <div class="relative group shrink-0">
+                    <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl border-2 border-bw-border bg-bw-bg flex items-center justify-center text-4xl font-black shadow-[3px_3px_0px_var(--shadow-color)] overflow-hidden relative">
+                        <img id="avatar-img" src="" alt="Avatar" class="w-full h-full object-cover hidden">
+                        <span id="avatar-emoji">😎</span>
+
+                        <!-- Hover Upload Overlay -->
+                        <label for="avatar-input" class="absolute inset-0 bg-black/60 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-xs font-bold p-1 text-center">
+                            <i class="fa-solid fa-camera text-lg mb-1"></i>
+                            <span>Upload Avatar</span>
+                        </label>
+                        <input type="file" id="avatar-input" accept="image/*" class="hidden" onchange="handleAvatarUpload(event)">
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Frietz</h1>
+                        <!-- Interactive Activity / Mood Status Badge -->
+                        <button onclick="cycleStatus()" title="Click to change status" class="text-xs font-extrabold px-3 py-1 rounded-full border-2 border-bw-border bg-bw-bg shadow-[2px_2px_0px_var(--shadow-color)] hover:scale-105 transition-transform flex items-center space-x-1.5 cursor-pointer">
+                            <span id="status-icon">🎮</span>
+                            <span id="status-text">Playing Minecraft</span>
+                        </button>
+                    </div>
+
+                    <p class="text-bw-muted text-sm sm:text-base font-semibold mt-1">
+                        16 y/o student & gaming community creator
+                    </p>
+
+                    <div class="flex flex-wrap justify-center sm:justify-start gap-2 mt-3">
+                        <span class="text-xs font-bold px-3 py-1 rounded-lg border-2 border-bw-border bg-bw-bg">
+                            <i class="fa-solid fa-gamepad mr-1"></i> Gamer
+                        </span>
+                        <span class="text-xs font-bold px-3 py-1 rounded-lg border-2 border-bw-border bg-bw-bg">
+                            <i class="fa-solid fa-cube mr-1"></i> Minecraft
+                        </span>
+                        <span class="text-xs font-bold px-3 py-1 rounded-lg border-2 border-bw-border bg-bw-bg">
+                            <i class="fa-brands fa-discord mr-1"></i> Community
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Header Action Controls -->
+            <div class="flex md:flex-col items-center gap-3 w-full md:w-auto justify-center shrink-0">
+                <button id="theme-toggle" onclick="toggleTheme()" class="outline-btn w-full md:w-auto px-4 py-2.5 rounded-xl font-bold text-sm flex items-center justify-center space-x-2">
+                    <i id="theme-icon" class="fa-solid fa-moon"></i>
+                    <span id="theme-text">Dark Mode</span>
+                </button>
+                <button onclick="copyDiscordTag('.frietzz')" class="outline-btn-primary w-full md:w-auto px-4 py-2.5 rounded-xl font-bold text-sm flex items-center justify-center space-x-2">
+                    <i class="fa-brands fa-discord"></i>
+                    <span>.frietzz</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Custom Chill Audio Player & Lyric Indicator UI -->
+        <section class="outline-card rounded-2xl p-4 sm:p-5 flex flex-col gap-4">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <!-- Track Meta -->
+                <div class="flex items-center space-x-4 w-full sm:w-auto">
+                    <div class="w-12 h-12 rounded-xl bg-bw-accent text-bw-accentText flex items-center justify-center text-xl font-bold border-2 border-bw-border shrink-0">
+                        <i class="fa-solid fa-compact-disc animate-spin-slow"></i>
+                    </div>
+                    <div class="overflow-hidden min-w-0">
+                        <div class="flex items-center space-x-2">
+                            <h4 id="song-title" class="font-extrabold text-sm truncate">Lofi Study Chill</h4>
+                            <div id="eq-container" class="flex items-end space-x-1 h-3.5 paused shrink-0">
+                                <div class="eq-bar"></div>
+                                <div class="eq-bar"></div>
+                                <div class="eq-bar"></div>
+                                <div class="eq-bar"></div>
+                            </div>
+                        </div>
+                        <p id="song-artist" class="text-xs text-bw-muted font-medium truncate">Relaxing Ambient Vibe</p>
+                    </div>
+                </div>
+
+                <!-- Media Action Controls -->
+                <div class="flex items-center justify-between sm:justify-end space-x-2 w-full sm:w-auto">
+                    <button onclick="prevTrack()" title="Previous Track" class="outline-btn p-2.5 rounded-xl text-sm">
+                        <i class="fa-solid fa-backward-step"></i>
+                    </button>
+                    <button id="play-btn" onclick="togglePlay()" class="outline-btn-primary px-5 py-2.5 rounded-xl text-sm font-bold flex items-center space-x-2">
+                        <i id="play-icon" class="fa-solid fa-play"></i>
+                        <span id="play-text">Play</span>
+                    </button>
+                    <button onclick="nextTrack()" title="Next Track" class="outline-btn p-2.5 rounded-xl text-sm">
+                        <i class="fa-solid fa-forward-step"></i>
+                    </button>
+                    <button id="loop-btn" onclick="toggleLoop()" title="Loop Track" class="outline-btn p-2.5 rounded-xl text-sm opacity-50">
+                        <i class="fa-solid fa-repeat"></i>
+                    </button>
+                    <button onclick="toggleMusicDrawer()" title="Music Library" class="outline-btn p-2.5 rounded-xl text-sm flex items-center space-x-1">
+                        <i class="fa-solid fa-list-music"></i>
+                        <i class="fa-solid fa-chevron-down text-xs transition-transform" id="drawer-chevron"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Song Lyric / Lines Sync Indicator Banner -->
+            <div id="lyric-indicator-box" class="p-3 rounded-xl border-2 border-bw-border bg-bw-bg flex items-center space-x-3 text-xs font-bold transition-all">
+                <i class="fa-solid fa-quote-left text-bw-muted text-sm"></i>
+                <span id="lyric-text" class="lyric-line truncate">"Late night gaming with the squad..."</span>
+            </div>
+
+            <!-- Track Progress Bar & Volume Row -->
+            <div class="flex flex-col sm:flex-row items-center gap-3 pt-2 border-t border-bw-border/20 text-xs">
+                <span id="current-time" class="font-bold text-bw-muted w-10 text-right">0:00</span>
+                <input type="range" id="seek-slider" value="0" max="100" class="w-full h-1.5 bg-bw-bg rounded-lg appearance-none cursor-pointer border border-bw-border" onchange="seekTrack(this.value)">
+                <span id="duration-time" class="font-bold text-bw-muted w-10">0:00</span>
+
+                <!-- Volume Control -->
+                <div class="flex items-center space-x-2 shrink-0">
+                    <i class="fa-solid fa-volume-high text-bw-muted text-xs"></i>
+                    <input type="range" id="volume-slider" value="80" max="100" class="w-20 h-1.5 bg-bw-bg rounded-lg appearance-none cursor-pointer border border-bw-border" oninput="setVolume(this.value)">
+                </div>
+            </div>
+
+            <!-- Expandable Song Playlist UI Selection Drawer -->
+            <div id="music-drawer" class="hidden space-y-2 pt-3 border-t-2 border-bw-border">
+                <p class="text-xs font-extrabold uppercase tracking-wider text-bw-muted mb-2">Select a Chill Track</p>
+                <div id="playlist-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <!-- Tracks populated via JavaScript -->
+                </div>
+            </div>
+
+            <!-- Audio Tag -->
+            <audio id="audio-player" loop preload="metadata">
+                <source id="audio-source" src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3" type="audio/mpeg">
+            </audio>
+        </section>
+
+        <!-- Dynamic Slide Navigation Tabs -->
+        <nav class="outline-card rounded-2xl p-2 overflow-x-auto">
+            <div class="flex items-center space-x-2 min-w-max">
+                <button onclick="switchTab('home', 0)" class="tab-btn active px-4 py-2.5 rounded-xl text-sm font-bold flex items-center">
+                    <i class="fa-solid fa-house mr-2"></i> Home
+                </button>
+                <button onclick="switchTab('about', 1)" class="tab-btn px-4 py-2.5 rounded-xl text-sm font-bold flex items-center">
+                    <i class="fa-solid fa-user-smile mr-2"></i> About Me
+                </button>
+                <button onclick="switchTab('discord', 2)" class="tab-btn px-4 py-2.5 rounded-xl text-sm font-bold flex items-center">
+                    <i class="fa-brands fa-discord mr-2"></i> Discord Servers
+                </button>
+            </div>
+        </nav>
+
+        <!-- Animated Tab Panels Area -->
+        <section class="tab-container min-h-[360px]">
+
+            <!-- HOME TAB -->
+            <div id="tab-home" class="tab-panel active space-y-6">
+                <div class="outline-card rounded-2xl p-6 sm:p-8 space-y-4">
+                    <span class="text-xs uppercase tracking-widest font-extrabold px-3 py-1 rounded-md border-2 border-bw-border bg-bw-bg">Welcome</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold">Hey there! I'm Frietz 👋</h2>
+                    <p class="text-bw-muted leading-relaxed font-medium">
+                        I'm a 16-year-old student who loves gaming, chilling out, and spending time with friends online. I also set up and manage custom Discord communities like Minecraft PvP networks, peaceful survival hubs, and general group hangouts.
+                    </p>
+                    <div class="pt-2 flex flex-wrap gap-3">
+                        <button onclick="switchTab('discord', 2)" class="outline-btn-primary px-5 py-2.5 rounded-xl font-bold text-sm flex items-center">
+                            <i class="fa-solid fa-gamepad mr-2"></i> Explore Minecraft Servers
+                        </button>
+                        <button onclick="switchTab('about', 1)" class="outline-btn px-5 py-2.5 rounded-xl font-bold text-sm flex items-center">
+                            <i class="fa-solid fa-address-card mr-2"></i> Read More About Me
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="outline-card p-5 rounded-2xl text-center space-y-2">
+                        <div class="text-3xl">🎮</div>
+                        <h3 class="font-extrabold text-base">Online Gamer</h3>
+                        <p class="text-xs text-bw-muted font-medium">Playing games every day with my closest friends.</p>
+                    </div>
+                    <div class="outline-card p-5 rounded-2xl text-center space-y-2">
+                        <div class="text-3xl">⛏️</div>
+                        <h3 class="font-extrabold text-base">Minecraft Host & Creator</h3>
+                        <p class="text-xs text-bw-muted font-medium">Building custom PvP and peaceful survival worlds.</p>
+                    </div>
+                    <div class="outline-card p-5 rounded-2xl text-center space-y-2">
+                        <div class="text-3xl">🎧</div>
+                        <h3 class="font-extrabold text-base">Chill Vibes</h3>
+                        <p class="text-xs text-bw-muted font-medium">Listening to lofi music, chatting, and relaxing.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ABOUT ME TAB -->
+            <div id="tab-about" class="tab-panel space-y-6">
+                <div class="outline-card rounded-2xl p-6 sm:p-8 space-y-5">
+                    <h2 class="text-2xl font-extrabold border-b-2 border-bw-border pb-3 flex items-center">
+                        <i class="fa-solid fa-user-circle mr-2.5"></i> About Me
+                    </h2>
+                    <p class="text-bw-muted font-medium leading-relaxed">
+                        I am Frietz, a 16-year-old high school student who loves all things gaming. Most of my free time is spent hanging out in voice calls with friends, exploring different games, and tinkering with community setups.
+                    </p>
+                    <p class="text-bw-muted font-medium leading-relaxed">
+                        I specialize in creating clean, organized Discord servers for Minecraft communities—from competitive PvP arenas to peaceful, laid-back survival spaces. I also support free server hosting platforms like <strong>Baohost</strong>, helping players get their servers online without hassle.
+                    </p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                        <div class="p-4 rounded-xl border-2 border-bw-border bg-bw-bg flex items-center space-x-3">
+                            <i class="fa-solid fa-graduation-cap text-xl"></i>
+                            <div>
+                                <h4 class="font-extrabold text-xs">Student Life</h4>
+                                <p class="text-xs text-bw-muted">16 Years Old</p>
+                            </div>
+                        </div>
+                        <div class="p-4 rounded-xl border-2 border-bw-border bg-bw-bg flex items-center space-x-3">
+                            <i class="fa-solid fa-server text-xl"></i>
+                            <div>
+                                <h4 class="font-extrabold text-xs">Community Builder</h4>
+                                <p class="text-xs text-bw-muted">Discord & Minecraft Setup</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DISCORD SERVERS TAB -->
+            <div id="tab-discord" class="tab-panel space-y-6">
+                <div class="outline-card rounded-2xl p-6 sm:p-8 space-y-6">
+                    <div>
+                        <h2 class="text-2xl font-extrabold border-b-2 border-bw-border pb-3 flex items-center">
+                            <i class="fa-brands fa-discord mr-2.5"></i> Discord Servers & Invites
+                        </h2>
+                        <p class="text-sm text-bw-muted mt-2 font-medium">
+                            Join any of the servers below to hang out, play Minecraft, or set up your own free server!
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        
+                        <!-- Baohost Free Host Card -->
+                        <div class="outline-card rounded-xl p-5 flex flex-col justify-between space-y-4">
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-2xl">⚡</span>
+                                    <span class="text-[10px] font-extrabold px-2 py-0.5 rounded border border-bw-border bg-emerald-300 text-slate-950">FREE HOST</span>
+                                </div>
+                                <h3 class="font-extrabold text-base">Baohost Server Hosting</h3>
+                                <p class="text-xs text-bw-muted mt-2 font-medium leading-relaxed">
+                                    Looking for a free Minecraft hosting provider that can handle lots of players? Check out Baohost!
+                                </p>
+                            </div>
+                            <a href="https://discord.gg/f4phDCvuah" target="_blank" class="outline-btn-primary w-full py-2.5 rounded-xl font-bold text-xs flex items-center justify-center space-x-2">
+                                <span>Join Baohost Discord</span>
+                                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                            </a>
+                        </div>
+
+                        <!-- Minecraft PvP Card -->
+                        <div class="outline-card rounded-xl p-5 flex flex-col justify-between space-y-4">
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-2xl">⚔️</span>
+                                    <span class="text-[10px] font-extrabold px-2 py-0.5 rounded border border-bw-border bg-amber-300 text-slate-950">PVP SERVER</span>
+                                </div>
+                                <h3 class="font-extrabold text-base">Minecraft PvP Server</h3>
+                                <p class="text-xs text-bw-muted mt-2 font-medium leading-relaxed">
+                                    Our competitive PvP server for fast-paced combat, duels, and playing with friends.
+                                </p>
+                            </div>
+                            <a href="https://discord.gg/7SYzeF2wn9" target="_blank" class="outline-btn-primary w-full py-2.5 rounded-xl font-bold text-xs flex items-center justify-center space-x-2">
+                                <span>Join PvP Discord</span>
+                                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                            </a>
+                        </div>
+
+                        <!-- Minecraft Peaceful Card -->
+                        <div class="outline-card rounded-xl p-5 flex flex-col justify-between space-y-4">
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-2xl">🌿</span>
+                                    <span class="text-[10px] font-extrabold px-2 py-0.5 rounded border border-bw-border bg-blue-300 text-slate-950">PEACEFUL</span>
+                                </div>
+                                <h3 class="font-extrabold text-base">Minecraft Peaceful Server</h3>
+                                <p class="text-xs text-bw-muted mt-2 font-medium leading-relaxed">
+                                    A peaceful, relaxed survival server made for friendly building and chilling out together.
+                                </p>
+                            </div>
+                            <a href="https://discord.gg/abJRBkYjHn" target="_blank" class="outline-btn-primary w-full py-2.5 rounded-xl font-bold text-xs flex items-center justify-center space-x-2">
+                                <span>Join Peaceful Discord</span>
+                                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Footer -->
+        <footer class="outline-card rounded-2xl p-4 text-center text-xs font-bold text-bw-muted flex flex-col sm:flex-row items-center justify-between gap-2">
+            <p>© 2026 Frietz. All rights reserved.</p>
+            <p class="text-[11px] font-semibold">Released under the <span class="underline">MIT License</span>.</p>
+        </footer>
+
+    </main>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Playlist Data with Synced Lyric / Line Indicators
+        const playlist = [
+            {
+                title: "Lofi Study Chill",
+                artist: "Relaxing Ambient Vibe",
+                url: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3",
+                lines: [
+                    "\"Late night gaming with the squad...\"",
+                    "\"Building block by block in Minecraft...\"",
+                    "\"Soft ambient beats in the background...\"",
+                    "\"Chilling in voice chat all evening...\""
+                ]
+            },
+            {
+                title: "Cozy Night Beats",
+                artist: "Midnight Lofi Session",
+                url: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a730bf.mp3?filename=lofi-cozy-chill-110385.mp3",
+                lines: [
+                    "\"Peaceful survival vibes only...\"",
+                    "\"Stars shining bright on the server...\"",
+                    "\"Warm coffee & smooth music...\"",
+                    "\"Just relaxing after a long day...\""
+                ]
+            },
+            {
+                title: "Synth Groove",
+                artist: "Chill Electric Wave",
+                url: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=chill-lofi-song-8444.mp3",
+                lines: [
+                    "\"PvP duels and quick reflexes...\"",
+                    "\"Smooth synth wave grooves...\"",
+                    "\"Gaming until the sun comes up...\"",
+                    "\"Good music, great friends...\""
+                ]
+            },
+            {
+                title: "Melody Breeze",
+                artist: "Soft Aesthetic Ambient",
+                url: "https://cdn.pixabay.com/download/audio/2022/11/06/audio_c29d10e059.mp3?filename=lofi-melody-124976.mp3",
+                lines: [
+                    "\"Fresh air and lo-fi melodies...\"",
+                    "\"Connecting people through discord...\"",
+                    "\"Keep calm and play on...\"",
+                    "\"Simple moments made special...\""
+                ]
+            },
+            {
+                title: "Good Night Lofi",
+                artist: "Calm Sleepy Atmosphere",
+                url: "https://cdn.pixabay.com/download/audio/2022/02/07/audio_bf07e15d85.mp3?filename=good-night-160166.mp3",
+                lines: [
+                    "\"Time to rest and unwind...\"",
+                    "\"Catching Zs after winning matches...\"",
+                    "\"Peaceful night rhythms...\"",
+                    "\"See you on the server tomorrow!\""
+                ]
+            }
+        ];
+
+        let currentTrackIndex = 0;
+        let lyricLineIndex = 0;
+        let lyricInterval = null;
+        let isPlaying = false;
+        let isLooping = true;
+        let currentTabIndex = 0;
+
+        const audio = document.getElementById('audio-player');
+        const audioSource = document.getElementById('audio-source');
+        const songTitle = document.getElementById('song-title');
+        const songArtist = document.getElementById('song-artist');
+        const lyricText = document.getElementById('lyric-text');
+        const playBtn = document.getElementById('play-btn');
+        const playIcon = document.getElementById('play-icon');
+        const playText = document.getElementById('play-text');
+        const eqContainer = document.getElementById('eq-container');
+        const seekSlider = document.getElementById('seek-slider');
+        const currentTimeEl = document.getElementById('current-time');
+        const durationTimeEl = document.getElementById('duration-time');
+
+        // Dynamic Lyric Line Switcher
+        function startLyricSync() {
+            if (lyricInterval) clearInterval(lyricInterval);
+            const lines = playlist[currentTrackIndex].lines;
+            lyricLineIndex = 0;
+            lyricText.textContent = lines[0];
+
+            lyricInterval = setInterval(() => {
+                if (isPlaying) {
+                    lyricLineIndex = (lyricLineIndex + 1) % lines.length;
+                    lyricText.style.opacity = 0;
+                    setTimeout(() => {
+                        lyricText.textContent = lines[lyricLineIndex];
+                        lyricText.style.opacity = 1;
+                    }, 200);
+                }
+            }, 4000);
+        }
+
+        // Initialize Music Playlist UI
+        function renderPlaylist() {
+            const container = document.getElementById('playlist-container');
+            container.innerHTML = '';
+
+            playlist.forEach((track, index) => {
+                const item = document.createElement('div');
+                item.className = `p-3 rounded-xl border-2 border-bw-border cursor-pointer flex items-center justify-between transition-all ${index === currentTrackIndex ? 'bg-bw-accent text-bw-accentText font-bold' : 'bg-bw-bg hover:bg-bw-accent/10'}`;
+                item.onclick = () => selectTrack(index);
+                item.innerHTML = `
+                    <div class="flex items-center space-x-3 overflow-hidden">
+                        <i class="fa-solid ${index === currentTrackIndex && isPlaying ? 'fa-volume-high animate-pulse' : 'fa-music'} text-xs"></i>
+                        <div class="truncate text-xs">
+                            <p class="font-bold truncate">${track.title}</p>
+                            <p class="opacity-70 text-[10px] truncate">${track.artist}</p>
+                        </div>
+                    </div>
+                    <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded border border-bw-border ${index === currentTrackIndex ? 'bg-bw-bg text-bw-text' : 'bg-bw-accent text-bw-accentText'}">Track ${index + 1}</span>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function updateTrackUI() {
+            const track = playlist[currentTrackIndex];
+            songTitle.textContent = track.title;
+            songArtist.textContent = track.artist;
+            audioSource.src = track.url;
+            audio.load();
+            renderPlaylist();
+            startLyricSync();
+
+            if (isPlaying) {
+                audio.play().catch(() => {});
+            }
+        }
+
+        function togglePlay() {
+            if (isPlaying) {
+                audio.pause();
+                isPlaying = false;
+                playIcon.className = 'fa-solid fa-play';
+                playText.textContent = 'Play';
+                eqContainer.classList.add('paused');
+            } else {
+                audio.play().then(() => {
+                    isPlaying = true;
+                    playIcon.className = 'fa-solid fa-pause';
+                    playText.textContent = 'Pause';
+                    eqContainer.classList.remove('paused');
+                }).catch(() => {
+                    showToast('Click anywhere on the page to start playing!');
+                });
+            }
+            renderPlaylist();
+        }
+
+        function selectTrack(index) {
+            currentTrackIndex = index;
+            isPlaying = true;
+            playIcon.className = 'fa-solid fa-pause';
+            playText.textContent = 'Pause';
+            eqContainer.classList.remove('paused');
+            updateTrackUI();
+        }
+
+        function nextTrack() {
+            currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+            updateTrackUI();
+        }
+
+        function prevTrack() {
+            currentTrackIndex = (currentTrackIndex - 1 + playlist.length) % playlist.length;
+            updateTrackUI();
+        }
+
+        function toggleLoop() {
+            isLooping = !isLooping;
+            audio.loop = isLooping;
+            const loopBtn = document.getElementById('loop-btn');
+            if (isLooping) {
+                loopBtn.classList.remove('opacity-50');
+                showToast('Looping enabled');
+            } else {
+                loopBtn.classList.add('opacity-50');
+                showToast('Looping disabled');
+            }
+        }
+
+        function toggleMusicDrawer() {
+            const drawer = document.getElementById('music-drawer');
+            const chevron = document.getElementById('drawer-chevron');
+            drawer.classList.toggle('hidden');
+            chevron.classList.toggle('rotate-180');
+        }
+
+        // Seek & Volume controls
+        audio.ontimeupdate = () => {
+            if (audio.duration) {
+                const pct = (audio.currentTime / audio.duration) * 100;
+                seekSlider.value = pct;
+                currentTimeEl.textContent = formatTime(audio.currentTime);
+                durationTimeEl.textContent = formatTime(audio.duration);
+            }
+        };
+
+        function seekTrack(val) {
+            if (audio.duration) {
+                audio.currentTime = (val / 100) * audio.duration;
+            }
+        }
+
+        function setVolume(val) {
+            audio.volume = val / 100;
+        }
+
+        function formatTime(secs) {
+            const m = Math.floor(secs / 60);
+            const s = Math.floor(secs % 60);
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        audio.onended = () => {
+            if (!isLooping) {
+                nextTrack();
+            }
+        };
+
+        // Smooth Directional Tab Switch Logic
+        function switchTab(tabId, newIndex) {
+            if (newIndex === currentTabIndex) return;
+
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            const activeBtn = Array.from(buttons).find(btn => btn.getAttribute('onclick').includes(tabId));
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
+
+            const panels = document.querySelectorAll('.tab-panel');
+            const targetPanel = document.getElementById('tab-' + tabId);
+
+            const slideClass = newIndex > currentTabIndex ? 'slide-in-right' : 'slide-in-left';
+
+            panels.forEach(panel => {
+                panel.classList.remove('active', 'slide-in-right', 'slide-in-left');
+            });
+
+            if (targetPanel) {
+                targetPanel.classList.add('active', slideClass);
+            }
+
+            currentTabIndex = newIndex;
+        }
+
+        // Theme Toggle Logic
+        function toggleTheme() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('theme-icon');
+            const themeText = document.getElementById('theme-text');
+
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                html.classList.add('light');
+                themeIcon.className = 'fa-solid fa-moon';
+                themeText.textContent = 'Dark Mode';
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.remove('light');
+                html.classList.add('dark');
+                themeIcon.className = 'fa-solid fa-sun';
+                themeText.textContent = 'Light Mode';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        (function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('theme-icon');
+            const themeText = document.getElementById('theme-text');
+
+            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                html.classList.remove('light');
+                html.classList.add('dark');
+                if (themeIcon && themeText) {
+                    themeIcon.className = 'fa-solid fa-sun';
+                    themeText.textContent = 'Light Mode';
+                }
+            } else {
+                html.classList.remove('dark');
+                html.classList.add('light');
+            }
+        })();
+
+        // Avatar Image Upload
+        function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const dataUrl = e.target.result;
+                    setAvatar(dataUrl);
+                    localStorage.setItem('frietz_avatar', dataUrl);
+                    showToast('Avatar updated!');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function setAvatar(url) {
+            const avatarImg = document.getElementById('avatar-img');
+            const avatarEmoji = document.getElementById('avatar-emoji');
+            if (url) {
+                avatarImg.src = url;
+                avatarImg.classList.remove('hidden');
+                avatarEmoji.classList.add('hidden');
+            }
+        }
+
+        (function loadSavedAvatar() {
+            const savedAvatar = localStorage.getItem('frietz_avatar');
+            if (savedAvatar) {
+                setAvatar(savedAvatar);
+            }
+        })();
+
+        // Interactive Status Cycler
+        const statuses = [
+            { icon: "🎮", text: "Playing Minecraft" },
+            { icon: "🎧", text: "Listening to Lofi" },
+            { icon: "💬", text: "Chilling with Friends" },
+            { icon: "⛏️", text: "Building PvP Server" },
+            { icon: "☕", text: "Chilling" }
+        ];
+        let statusIndex = 0;
+
+        function cycleStatus() {
+            statusIndex = (statusIndex + 1) % statuses.length;
+            document.getElementById('status-icon').textContent = statuses[statusIndex].icon;
+            document.getElementById('status-text').textContent = statuses[statusIndex].text;
+            showToast('Status: ' + statuses[statusIndex].text);
+        }
+
+        // Copy Discord Tag Utility
+        function copyDiscordTag(text) {
+            const tempInput = document.createElement("input");
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+
+            showToast('Copied Discord Tag: ' + text);
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            toastMsg.textContent = message;
+            
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        // Init
+        renderPlaylist();
+        startLyricSync();
+    </script>
+</body>
+</html>
